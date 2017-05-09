@@ -1,0 +1,102 @@
+---
+title: "How To Develop In C++ Using RStudio"
+author: "Peter von Rohr"
+date: "5/8/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Disclaimer
+This document uses concrete examples to show how to develop in C++ using RStudio as an Integrated Development Environment (IDE).
+
+
+## Introduction
+In general, development of programs in compiled languages such as C++ greatly benefit from using IDEs. Known IDEs that can be used to develop in C++ are the open source project __Eclipse__ and __XCode__ on MacOs. On Windows Visual Studio is probably the most widely used IDE.
+
+### Rcpp
+With the development of the R-addon package __Rcpp__, it has become a lot easier to connect C++ code with programs written in R. Given the fact that RStudio is the defacto standard-IDE for writting R-programs, it seams obvious, that we want to use RStudio to develop C++ code.
+
+
+## Goal
+The aim of this post is to show how RStudio can be used to develop C++ code based on concrete examples. 
+
+
+## A First Example - Starting From Scratch
+In this first example, we assume that we start from scratch which means that we do not have any existing code. We are just given a problem and we want to solve that problem using a program that is written in C++. 
+
+### Problem Setting
+For our first example, we are using the problem of computing the Fibonacci numbers. The Fibonacci sequence $F_n$ is defined recursivly by 
+
+\begin{equation}
+F_n = F_{n-2} + F_{n-1}
+\label{eq:FibDef}
+\end{equation}
+
+with initial conditions $F_0 = 0$ and $F_1 = 1$. 
+
+### A First Solution In R
+The following R-function computes the number $F_n$ using the definition given in the equation above. For the moment, we are just using the recursive computation shown below as an instructive example. We are not discussing the problem that many of the Fibonacci numbers are computed several times.
+
+```{r SimpleFibInR}
+fibR <- function(n){
+  if (n == 0) return(0)
+  if (n == 1) return(1)
+  return(fibR(n-1) + fibR(n-2))
+}
+```
+
+Using the above function, the first ten numbers of the Fibonacci sequence can easily be computed as
+
+```{r FibSeqFirstTen}
+sapply(1:10, fibR, USE.NAMES = FALSE)
+```
+
+### A First Solution in C++
+The computation of $F_n$ in C++ can be done at different levels. The easiest would be to write the analogous of the R-function `fibR()` in C++ and call that function from R using packages `inline` and `Rcpp`. This solution is shown below
+
+```{r FirstFibRcpp}
+### # start with pure C/C++ function and assign the source code to
+### #  a variable which we call here includesrc
+includesrc <- '
+int fibonacci(const int x){
+  if (x == 0) return(0);
+  if (x == 1) return(1);
+  return fibonacci(x-1) + fibonacci(x-2);
+}'
+
+### # define the body of the C/C++ program
+fibCppBody <- '
+int x = Rcpp::as<int>(xs);
+return Rcpp::wrap( fibonacci(x) );'
+
+### # pass the above C/C++ function as an argument
+### # to cxxfunction()
+fibRcpp <- inline::cxxfunction(sig = signature(xs = "int"),
+                               plugin = "Rcpp",
+                               incl = includesrc,
+                               body = fibCppBody)
+```
+
+The function `fibRcpp()` is an ordinary R-function, but it uses a `C/C++`-function to actually compute the value of $F_n$. Again computing the first ten numbers of the Fibonacci sequence can be done with
+
+```{r FibRcppFirstTen}
+sapply(1:10, fibRcpp, USE.NAMES = FALSE)
+```
+
+From the simple computation of the first ten numbers of the Fibonacci sequence, we do not see any difference. But when it comes to computing times, there should be a difference. Hence we are comparing the difference between the two function `fibR()` and `fibRcpp()` for the first 30 numbers in the Fibonacci sequence.
+
+```{r ComputingTimeComparison}
+system.time(sapply(1:30, fibR, USE.NAMES = FALSE))
+system.time(sapply(1:30, fibRcpp, USE.NAMES = FALSE))
+```
+
+The advantage of this first solution is that it is easy to transfer existing functions from R to C/C++. But the C/C++ functions as such cannot be used outside R without the packages `inline` and `Rcpp`. Hence we would want to get to a solution that can also be used outside of R. But this requires a clearer separation of the C/C++ functions from the part that is done in R. This separation also requires more work and more infrastructure. RStudio can help us to provide some of the additional infrastructure that is needed. Furthermore, we also want to benefit from the R-packaging mechanism and from the R-package `devtools`.
+
+
+### A Second Solution in C/C++
+Besides the separation between the C/C++ code and the part implemented in R, we also want to come up with an object-oriented way of computing the number $F_n$. This requires to define a class which includes the computation in one of its method. The advantage of using a class, becomes more apparent, when extending the simple computation with some helper-constructs that prevents us from computing most of the Fibonacci numbers more than once. 
+
+But first things first, let us get started with a simple C++-class that computes $F_n$ inside one of its methods. This can easily be done by starting a new project in RStudio, as shown in the following screenshots.
