@@ -100,3 +100,8 @@ The advantage of this first solution is that it is easy to transfer existing fun
 Besides the separation between the C/C++ code and the part implemented in R, we also want to come up with an object-oriented way of computing the number $F_n$. This requires to define a class which includes the computation in one of its method. The advantage of using a class, becomes more apparent, when extending the simple computation with some helper-constructs that prevents us from computing most of the Fibonacci numbers more than once. 
 
 But first things first, let us get started with a simple C++-class that computes $F_n$ inside one of its methods. This can easily be done by starting a new project in RStudio, as shown in the following screenshots.
+
+```{r NewProjectScreenShot}
+knitr::include_graphics(path = "../png/NewProjectScreenShot")
+```
+
