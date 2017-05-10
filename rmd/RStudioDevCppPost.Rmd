@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
 ```
 
 ## Disclaimer
@@ -101,7 +102,10 @@ Besides the separation between the C/C++ code and the part implemented in R, we 
 
 But first things first, let us get started with a simple C++-class that computes $F_n$ inside one of its methods. This can easily be done by starting a new project in RStudio, as shown in the following screenshots.
 
-```{r NewProjectScreenShot}
-knitr::include_graphics(path = "../png/NewProjectScreenShot")
+```{r NewProjectScreenShot, conv.odg = TRUE, odg.path="../odg", odg.graph.cache=TRUE, out.format="png", echo=FALSE}
+knitr::include_graphics(path = "NewProjectScreenShot.png")
 ```
+
+In side that new project, we create a new class called `Fibonacci` which has just one method `int getFibnacciNumber(int n)` which returns the value for $F_n$. The new class is declared in a header file and implementated in a file with extension .cpp. The content of the two files are shown below.
+
 
