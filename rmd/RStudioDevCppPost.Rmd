@@ -106,6 +106,58 @@ But first things first, let us get started with a simple C++-class that computes
 knitr::include_graphics(path = "NewProjectScreenShot.png")
 ```
 
-In side that new project, we create a new class called `Fibonacci` which has just one method `int getFibnacciNumber(int n)` which returns the value for $F_n$. The new class is declared in a header file and implementated in a file with extension .cpp. The content of the two files are shown below.
+In side that new project, we create a new class called `Fibonacci` which has just one method `int getFibnacciNumber(int n)` which returns the value for $F_n$. The new class is declared in a header-file called `Fibonacci.h` and implementated in a cpp-file called `Fibonacci.cpp`. Header-files and cpp-files can easily be created using RStudios `File`-menu such as shown in the screen shot below.
+
+```{r NewCppFileScreenShot, conv.odg = TRUE, odg.path="../odg", odg.graph.cache=TRUE, out.format="png", echo=FALSE}
+knitr::include_graphics(path = "NewCppFileScreenShot.png")
+```
+
+The step shown above creates an empty C++ file with some default text. Most of that text can be deleted and our own code can be inserted. For our example of computing the Fibonacci number $F_n$, the content of the two files is shown below. We start with the __header file__.
+
+```{r ShowContentHeaderFile, echo=FALSE, results='markup'}
+sGetFileContentAsString <- function(psFileName){
+  conFile <- file(description = psFileName)
+  vecFileContent <- readLines(con = conFile)
+  close(conFile)
+  return(paste(vecFileContent, collapse = "\n"))
+}
+sRcppProjDir <- "/Users/peter/Data/Projects/GitHub/charlotte-ngs/Drafts4Charlotte-NgsBlog/FibonacciNumberRcpp/src"
+sHeaderFile <- file.path(sRcppProjDir, "Fibonacci.h")
+cat(sGetFileContentAsString( psFileName = sHeaderFile), "\n")
+```
+
+The __cpp-file__ contains the implementation of what was declared in the header file
+
+```{r ShowContentCppFile, echo=FALSE, results='markup'}
+sCppFile <- file.path(sRcppProjDir, "Fibonacci.cpp")
+cat(sGetFileContentAsString( psFileName = sCppFile), "\n")
+```
+
+
+At this point we are almost done. All that remains to be done, is to write a small function that actually uses our class to do the computation. In a pure C++ project this would be the function `int main()`. Here we can write an equivalent function. For our example we call that function `in fibonacci_main()` and we save it in a separate file called `fibonacci_main.cpp`. the content of this file is listed below. 
+
+```{r ShowContentFibMain, echo=FALSE, results='markup'}
+sFibMainFile <- file.path(sRcppProjDir, "fibonacci_main.cpp")
+cat(sGetFileContentAsString( psFileName = sFibMainFile), "\n")
+```
+
+The above shown code now uses the functionality provided by the R-Package `Rcpp` to connect the C++-code to R and makes it easy to run the C++-functionality from inside of R. The first two lines of `fibonacci_main.cpp` contain the necessary `include`-statements that are required by Rcpp. The C++ comment `// [[Rcpp::export]]` is a Rcpp-attribute that denotes to Rcpp that the following function should be exported to be used from R. 
+
+Before, we can use the C++-functionality, we have to compile the C++-code. Usually, this can be quite painful, but here we can use all the infrastructure that is coming with the R/RStudio packaging and with the R-package `devtools`. All we have to enter in our RStudio-project within which we have written all our C++-code is the following statement on the RStudio console
+
+```{r CompileCommandScreenShot, conv.odg = TRUE, odg.path="../odg", odg.graph.cache=TRUE, out.format="png", echo=FALSE}
+knitr::include_graphics(path = "CompileCommandScreenShot.png")
+```
+
+Once the compilation is done, we are ready to call the function `fibonacci_main()` from the R-console, either to compute a single number or to get the complete sequence of numbers.
+
+```{r ComputeNumbersResult, conv.odg = TRUE, odg.path="../odg", odg.graph.cache=TRUE, out.format="png", echo=FALSE}
+knitr::include_graphics(path = "ComputeNumbersResult.png")
+```
+
+
+
+
+
 
 
